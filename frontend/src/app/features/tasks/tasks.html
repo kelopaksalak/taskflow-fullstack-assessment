@@ -1,0 +1,131 @@
+<main class="container py-4 py-md-5">
+  <header class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1">My tasks</h1>
+      <p class="text-secondary mb-0">
+        Track your work and manage your priorities.
+      </p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-primary" (click)="loadTasks()"
+        [disabled]="loading() || busyTaskId() !== null">
+        Refresh
+      </button>
+
+      <a routerLink="/tasks/new" class="btn btn-primary">
+        New task
+      </a>
+
+      <button type="button" class="btn btn-outline-secondary" (click)="logout()">
+        Log out
+      </button>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage() }}
+  </div>
+  }
+
+  <section class="card border-0 shadow-sm">
+    <div class="card-body">
+      @if (loading()) {
+      <div class="d-flex justify-content-center align-items-center gap-2 py-5" role="status">
+        <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+        <span>Loading tasks...</span>
+      </div>
+      } @else if (tasks().length === 0) {
+      <p class="text-secondary text-center py-5 mb-0">
+        No tasks to display.
+      </p>
+      } @else {
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <caption class="visually-hidden">
+            Your tasks and available actions
+          </caption>
+
+          <thead>
+            <tr>
+              <th scope="col">Task</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Due date</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (task of tasks(); track task.id) {
+            <tr [attr.aria-busy]="busyTaskId() === task.id">
+              <td>
+                <div class="fw-semibold text-break" [class.text-decoration-line-through]="
+                        task.status === 'Done'
+                      ">
+                  {{ task.title }}
+                </div>
+
+                @if (task.description) {
+                <div class="small text-secondary text-break">
+                  {{ task.description }}
+                </div>
+                }
+              </td>
+
+              <td>
+                <span class="badge" [class.text-bg-danger]="task.priority === 'High'"
+                  [class.text-bg-warning]="task.priority === 'Medium'"
+                  [class.text-bg-secondary]="task.priority === 'Low'">
+                  {{ task.priority }}
+                </span>
+              </td>
+
+              <td class="text-nowrap">
+                {{ task.dueDate ?? '—' }}
+              </td>
+
+              <td>
+                <span class="badge" [class.text-bg-success]="task.status === 'Done'"
+                  [class.text-bg-light]="task.status === 'Todo'">
+                  {{ task.status }}
+                </span>
+              </td>
+
+              <td>
+                <div class="d-flex justify-content-end gap-2">
+                  <a class="btn btn-sm btn-outline-primary" [routerLink]="['/tasks', task.id, 'edit']"
+                    [attr.aria-label]="'Edit: ' + task.title">
+                    Edit
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-success text-nowrap" (click)="toggleStatus(task)"
+                    [disabled]="busyTaskId() !== null" [attr.aria-label]="
+                          (task.status === 'Done'
+                            ? 'Mark as Todo: '
+                            : 'Mark as Done: ') + task.title
+                        ">
+                    {{ task.status === 'Done' ? 'Undo' : 'Mark Done' }}
+                  </button>
+
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteTask(task)"
+                    [disabled]="busyTaskId() !== null" [attr.aria-label]="'Delete: ' + task.title">
+                    Delete
+                  </button>
+                </div>
+
+                @if (busyTaskId() === task.id) {
+                <div class="small text-secondary text-end mt-1" role="status">
+                  Updating...
+                </div>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+  </section>
+</main>

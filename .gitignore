@@ -1,0 +1,19 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# .NET build output
+**/bin/
+**/obj/
+
+# Angular dependencies and build output
+**/node_modules/
+**/dist/
+**/.angular/
+
+# Editor settings
+.vs/
+
+# Local Kubernetes secrets
+/k8s/secret.local.yaml
